@@ -1,0 +1,11 @@
+  - name: "Install Minio"
+    hosts: localhost
+    become: yes
+    roles:
+      - { role: atosatto.minio }
+    vars:
+      minio_access_key: "minio"
+      minio_secret_key: "minio2021"
+      minio_user: "minio"
+      minio_group: "minio"
+      minio_server_datadirs: [ "/minio-server" ]

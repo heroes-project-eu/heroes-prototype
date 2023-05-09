@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-server-{{ ORGANIZATION_NAME }}
+  namespace: heroes
+  labels:
+    app: minio-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio-server
+  template:
+    metadata:
+      namespace: heroes
+      labels:
+        app: minio-server
+    spec:
+      containers:
+      - name: minio-server-{{ ORGANIZATION_NAME }}
+        image: gitlab.doit.priv:5050/heroes/k8s-apps/minio-server:latest
+        args: [
+          "{{ KEYCLOAK_URL }}",  # KEYCLOAK_URL
+          "{{ KEYCLOAK_PORT }}",  # KEYCLOAK_PORT
+          "{{ ORGANIZATION_NAME }}",  # ORGANIZATION_NAME
+          "{{ ORGANIZATION_CLIENT_ID }}",  # ORGANIZATION_CLIENT_ID
+          "{{ ORGANIZATION_CLIENT_SECRET }}",  # ORGANIZATION_CLIENT_SECRET
+          "{{ MINIO_SERVER_URL }}",  # MINIO_SERVER_URL
+          "{{ MINIO_SERVER_PORT }}",  # MINIO_SERVER_PORT
+          "{{ MINIO_SERVER_CONSOLE_PORT }}",  # MINIO_SERVER_CONSOLE_PORT
+        ]
+      imagePullSecrets:
+        - name: heroes-registry-ro

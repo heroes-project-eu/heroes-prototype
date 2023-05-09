@@ -1,0 +1,11 @@
+---
+repodir: "/home/centos/heroes_runtime"
+repodir_src: "/opt/rabbitmq/deployment"
+repodir_dst: "/home/hsuser/heroes_runtime"
+pkg:
+  name: heroes-tools
+  version: 4.2
+  release: 001
+  arch: x86_64
+  ext: tar.gz
+  sha1sum: "4215741173df44fd7a89592790f7f7f8f1b1d75b"

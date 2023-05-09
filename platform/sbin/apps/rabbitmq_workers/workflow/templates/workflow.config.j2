@@ -1,0 +1,40 @@
+process {
+  executor='slurm'
+  queueSize = 15
+  pollInterval = '5 min'
+  dumpInterval = '6 min'
+  queueStatInterval = '5 min'
+  exitReadTimeout = '13 min'
+  killBatchSize = 30
+  submitRateLimit = '20 min'
+  clusterOptions = '-q compute -n 2'
+  inputDir = '{{ DATA['inputDir'] }}'
+  {% for task in TASKS -%}
+  withName: {{ task }} {
+    cluster = [
+      '{{ TASKS[task].cluster.name }}',
+      '{{ TASKS[task].cluster.user }}',
+      '{{ TASKS[task].cluster.address }}',
+      '{{ TASKS[task].cluster.port }}',
+      '{{ TASKS[task].cluster.ssh_path }}'
+    ]
+    data = '{{ RCLONE_CONFIG_FILE }}'
+    minio = '{{ ORGANIZATION }}'
+    bucket = '{{ BUCKET }}'
+    container = '{{ TASKS[task].container }}'
+    singularityContainer = '{{ TASKS[task].singularityContainer }}'
+    {% if TASKS[task].cpus %}cpus = 1{% endif %}
+    {% if TASKS[task].memory %}memory = '{{  TASKS[task].memory }}'{% endif %}
+    {% if TASKS[task].limit %}limit = '{{  TASKS[task].limit }}'{% endif %}
+  }
+  {% endfor %}
+}
+
+profiles {
+        singularity {
+                singularity.enabled=true
+                singularity.earPath = '{{ EAR_SINGULARITY_DIRECTORY }}/bin/erun'
+                singularity.runOptions = '--env {{ HEROES_VARIABLES }},EAR_INSTALL_PATH="{{ EAR_SINGULARITY_DIRECTORY }}",EAR_ETC="",EAR_TMP="{{ EAR_SINGULARITY_DIRECTORY }}/vars",SLURM_EAR_REPORT_ADD="heroes.so",SLURM_COMP_VERBOSE="4",SLURM_JOB_ID="$SLURM_JOB_ID",SLURM_STEP_ID="$SLURM_STEP_ID" -B /lib64:/lib64,{{ WORK_DIRECTORY }}:{{ WORK_DIRECTORY }}:rw,{{ EAR_DIRECTORY }}:{{ EAR_SINGULARITY_DIRECTORY }}:rw'
+
+        }
+}

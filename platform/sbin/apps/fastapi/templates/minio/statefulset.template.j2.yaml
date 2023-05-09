@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio-server-{{ ORGANIZATION_NAME }}
+  labels:
+    app: minio-server-{{ ORGANIZATION_NAME }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tag: minio
+      app: minio-server-{{ ORGANIZATION_NAME }}
+  template:
+    metadata:
+      labels:
+        tag: minio
+        app: minio-server-{{ ORGANIZATION_NAME }}
+    spec:
+      initContainers:
+      - name: fix-permission
+        image: busybox
+        command: ["sh", "-c", "chown -R 1001:1001 /data"]
+        volumeMounts:
+        - name: minio-server-{{ ORGANIZATION_NAME }}
+          mountPath: /data
+        imagePullPolicy: IfNotPresent
+      - name: openid-wait
+        image: busybox
+        env:
+        - name: MINIO_IDENTITY_OPENID_CONFIG_URL
+          value: "{{ KEYCLOAK_BASEURL }}/realms/{{ ORGANIZATION_NAME }}/.well-known/openid-configuration"
+        command: [ 'sh', '-c', 'until wget ${MINIO_IDENTITY_OPENID_CONFIG_URL} ; do echo waiting for ${MINIO_IDENTITY_OPENID_CONFIG_URL} ; sleep 2; done;' ]
+        imagePullPolicy: IfNotPresent
+      containers:
+      - name: minio-server-{{ ORGANIZATION_NAME }}
+        image: bitnami/minio:2022.12.12-debian-11-r3
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - /opt/bitnami/scripts/minio/entrypoint.sh  /opt/bitnami/scripts/minio/run.sh &
+          minio_pid=$!;
+          sleep 30;
+          mc admin policy add local userPolicy /tmp/userPolicy/policy.json;
+          wait $minio_pid;
+          exit=$?
+        env:
+        - name: "MINIO_IDENTITY_OPENID_CONFIG_URL"
+          value: "{{ KEYCLOAK_BASEURL }}/realms/{{ ORGANIZATION_NAME }}/.well-known/openid-configuration"
+        - name: "MINIO_IDENTITY_OPENID_CLIENT_ID"
+          value: "{{ ORGANIZATION_CLIENT_ID }}"
+        - name: "MINIO_IDENTITY_OPENID_REDIRECT_URI"
+          value: "http://minio-server-{{ ORGANIZATION_NAME }}:9001/oauth_callback"
+        - name: MINIO_IDENTITY_OPENID_SCOPES
+          value: openid    
+        - name: MINIO_IDENTITY_OPENID_CLAIM_NAME
+          value: minioPolicy
+        envFrom:
+        - secretRef:
+            name: minio-server-{{ ORGANIZATION_NAME }}
+        volumeMounts:
+        - mountPath: /tmp/userPolicy/policy.json
+          name: config
+          subPath: policy.json
+        - mountPath: /opt/bitnami/minio/config.json
+          name: config
+          subPath: config.json
+        - name: minio-server-{{ ORGANIZATION_NAME }}
+          mountPath: /data
+      volumes:
+      - name: config
+        configMap:
+          name: minio-server-{{ ORGANIZATION_NAME }}
+  volumeClaimTemplates:
+  - metadata:
+      name: minio-server-{{ ORGANIZATION_NAME }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi

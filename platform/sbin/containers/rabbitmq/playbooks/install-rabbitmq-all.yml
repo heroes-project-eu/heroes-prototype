@@ -1,0 +1,56 @@
+################################################################################
+# Copyright (c) 2017-2021 UCit SAS
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of UCit SAS ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with UCit.
+################################################################################
+
+# This script allows Master and Compute to join an active directory domain
+
+- hosts: localhost
+  vars:
+    HEROES_DEPLOYMENT_DIR: "/opt/heroes/platform/sbin"
+    rabbitmq_VERSION: "0.2"
+
+  tasks:
+
+    - name: Install RabbitMQ prerequisites
+      yum:
+        name:
+          - python38
+          - python38-pip
+          - rabbitmq-server
+          - git
+        state: present
+
+    - name: Create rabbitmq group
+      group:
+        name: rabbitmq
+        local: yes
+        state: present
+
+    - name: Create rabbitmq user
+      user:
+        name: rabbitmq
+        local: yes
+        group: rabbitmq
+        create_home: yes
+        home: /opt/rabbitmq
+        system: yes
+
+    - name: Untar HEROES-rabbitmq archive
+      unarchive:
+        src: "{{ HEROES_DEPLOYMENT_DIR }}/src/worker/heroes-rabbitmq-{{ rabbitmq_VERSION }}.tar.gz"
+        dest: "/opt/rabbitmq"
+        owner: rabbitmq
+        group: rabbitmq
+        extra_opts: [--strip-components=1]
+
+    - name: Install specified python3 requirements for each worker
+      pip:
+        requirements: "/opt/rabbitmq/worker/requirements.txt"
+        executable: pip3.8

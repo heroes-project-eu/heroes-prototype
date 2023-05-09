@@ -1,0 +1,4 @@
+---
+ansibleDir: "${baseDir}/../ansible"
+ansibleMain: "main.yml"
+ansibleTags: "all"

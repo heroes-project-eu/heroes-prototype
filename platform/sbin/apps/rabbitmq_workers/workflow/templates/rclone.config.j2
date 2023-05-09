@@ -1,0 +1,22 @@
+[{{ ORGANIZATION }}]
+type = s3
+provider = Minio
+env_auth = false
+access_key_id = {{ DATA['credentials'].AccessKeyId }}
+secret_access_key = {{ DATA['credentials'].SecretAccessKey }}
+session_token = {{ DATA['credentials'].SessionToken }}
+region =
+endpoint = http://minio-server-{{ ORGANIZATION }}:9000
+location_constraint =
+server_side_encryption =
+
+{% for task in TASKS -%}
+[{{ TASKS[task].cluster.name }}]
+type = sftp
+host = {{ TASKS[task].cluster.address }}
+user = {{ TASKS[task].cluster.user }}
+key_file = {{ TASKS[task].cluster.ssh_path }}
+port = {{ TASKS[task].cluster.port }}
+disable_hashcheck = true
+
+{% endfor %}

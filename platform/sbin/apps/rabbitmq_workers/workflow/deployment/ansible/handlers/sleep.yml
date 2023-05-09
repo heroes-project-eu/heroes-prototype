@@ -1,0 +1,5 @@
+---
+- name: Sleep 30 sec
+  wait_for:
+    timeout: 30
+  delegate_to: localhost

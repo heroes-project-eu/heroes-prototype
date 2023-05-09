@@ -1,0 +1,27 @@
+:root {
+    --HEROES-blue_one:#254687;
+    --HEROES-blue_two:#2576b7;
+    --HEROES-blue_three:#39a8dd;
+    --HEROES-blue_four:#16c7ff;
+    --HEROES-grey_one:#3c3c3b;
+    --HEROES-orange:#f49f1d;
+    --HEROES-grey_two:#dadada;
+    --HEROES-grey_three:#706f6f;
+    --HEROES-grey_four:#3a3f48;
+    --HEROES-grey_five:#31353D;
+    --HEROES-grey_six:#818896;
+    --HEROES-grey_seven:#b8bfce;
+    --HEROES-grey_eight:#bdbdbd;
+    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-monospace: "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+
+.wy-side-nav-search{ background-color:var(--HEROES-blue_one) }
+.wy-nav-side{ background-color:var(--HEROES-grey_five) }
+/* .wy-menu-vertical li.toctree-l1.current{ background-color:var(--HEROES-grey_eight) }
+.wy-menu-vertical li.toctree-l1.current>a{ background-color:var(--HEROES-grey_six) }
+.wy-menu-vertical li.toctree-l1.current>ul{ background-color:var(--HEROES-grey_seven) } */
+
+.icon-home{ color:var(--HEROES-blue_two) }
+
+/*.wy-nav-content{max-width: 100%;}*/

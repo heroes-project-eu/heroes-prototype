@@ -1,0 +1,141 @@
+################################################################################
+# Copyright (c) 2017-2021 UCit SAS
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of UCit SAS ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with UCit.
+################################################################################
+
+# This script allows Master and Compute to join an active directory domain
+
+- hosts: localhost
+  vars:
+    NEXTFLOW_VERSION: "v21.12.1-edge"
+    NEXTFLOW_URL: "https://github.com/nextflow-io/nextflow.git"
+    NEXTFLOW_DIR: "/etc/nextflow"
+    HEROES_SRC_DIR: "/opt/heroes/platform/sbin/src/playbooks/src"
+
+  tasks:
+    - name: Install prerequisites
+      yum:
+        name:
+          - git
+          - java
+          - java-devel
+          - rsync
+          - bind-utils
+        state: present
+
+    - name: Create nextflow group
+      group:
+        name: nextflow
+        local: yes
+        state: present
+
+    - name: Create nextflow user
+      user:
+        name: nextflow
+        local: yes
+        group: nextflow
+        create_home: yes
+        system: yes
+
+    - name: Create /etc/nextflow dir with nextflow user as owner
+      ansible.builtin.file:
+        path: "{{ NEXTFLOW_DIR }}"
+        state: directory
+        owner: nextflow
+        group: nextflow
+
+    - name: Download Nextflow sources
+      git:
+        repo: "{{ NEXTFLOW_URL }}"
+        dest: "{{ NEXTFLOW_DIR }}"
+        version: "{{ NEXTFLOW_VERSION }}"
+
+    - name: Copy the AbstractGridExecutor
+      template:
+        src: "{{ HEROES_SRC_DIR }}/AbstractGridExecutor.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/executor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the GridTaskHandler
+      template:
+        src: "{{ HEROES_SRC_DIR }}/GridTaskHandler.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/executor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the ProcessConfig
+      template:
+        src: "{{ HEROES_SRC_DIR }}/ProcessConfig.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/script"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the SlurmExecutor
+      template:
+        src: "{{ HEROES_SRC_DIR }}/SlurmExecutor.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/executor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the TaskConfig
+      template:
+        src: "{{ HEROES_SRC_DIR }}/TaskConfig.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/processor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the TaskRun
+      template:
+        src: "{{ HEROES_SRC_DIR }}/TaskRun.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/processor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the TaskProcessor
+      template:
+        src: "{{ HEROES_SRC_DIR }}/TaskProcessor.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/processor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the SingularityBuilder
+      template:
+        src: "{{ HEROES_SRC_DIR }}/SingularityBuilder.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/container"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Copy the BashWrapperBuilder
+      template:
+        src: "{{ HEROES_SRC_DIR }}/BashWrapperBuilder.groovy"
+        dest: "{{ NEXTFLOW_DIR }}/modules/nextflow/src/main/groovy/nextflow/executor"
+        mode: "0600"
+        owner: "nextflow"
+        group: "nextflow"
+
+    - name: Compile Nextflow
+      make:
+        chdir: "{{ NEXTFLOW_DIR }}"
+        target: compile
+      become: yes
+
+    - name: Change tty for console in the Nextflow launch.sh script
+      replace:
+        path: "{{ NEXTFLOW_DIR }}/launch.sh"
+        regexp: '/dev/tty'
+        replace: '/dev/console'

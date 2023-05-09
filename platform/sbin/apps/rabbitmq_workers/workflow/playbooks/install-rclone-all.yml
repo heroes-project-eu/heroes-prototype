@@ -1,0 +1,42 @@
+################################################################################
+# Copyright (c) 2017-2021 UCit SAS
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of UCit SAS ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with UCit.
+################################################################################
+
+# This script allows Master and Compute to join an active directory domain
+
+- hosts: localhost
+  vars:
+    RCLONE_URL: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
+    RCLONE_DIR: "/usr/bin/"
+    HEROES_SRC_DIR: "/opt/heroes/platform/sbin/src/playbooks/src"
+
+  tasks:
+
+    - name: Create /etc/nextflow dir with nextflow user as owner
+      file:
+        path: "/tmp/rclone"
+        state: directory
+
+    - name: Untar rclone sources from URL
+      unarchive:
+        src: "{{ RCLONE_URL }}"
+        dest: "/tmp/rclone"
+        extra_opts:
+          - -j
+        remote_src: yes
+      register: archive_contents
+
+    - name: Move rclone binary
+      copy:
+        src: "/tmp/rclone/rclone"
+        dest: "{{ RCLONE_DIR }}"
+        mode: '755'
+        owner: nextflow
+        group: nextflow

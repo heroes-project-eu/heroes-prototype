@@ -1,0 +1,33 @@
+---
+- name: Ensure service group exists
+  ansible.builtin.group:
+    name: "{{ service_group.name }}"
+    gid: "{{ service_group.id }}"
+    state: present
+
+- name: Ensure service user exists
+  ansible.builtin.user:
+    name: "{{ service_user.name }}"
+    uid: "{{ service_user.id }}"
+    group: "{{ service_group.name }}"
+    comment: Heroes service user
+    state: present
+
+#- name: debug organizations and users
+#  ansible.builtin.debug:
+#    msg: "Organization name is {{ item.0.name }}, it's unique id is {{ item.0.uuid }} (userid: {{ item.1.uuid }})"
+#  with_subelements:
+#    - "{{ organization }}"
+#    - users
+
+- name: Check user segregation on filesystem
+  ansible.builtin.file:
+    #path: "/home/{{ service_user.name }}/heroes-fs/orgAuuid/userAuuid"
+    path: "/home/{{ service_user.name }}/heroes-fs/{{ item.0.uuid }}/{{ item.1.uuid }}"
+    state: directory
+    owner: "{{ service_user.name }}"
+    group: "{{ service_group.name }}"
+    mode: '0700'
+  with_subelements:
+    - "{{ organization }}"
+    - users

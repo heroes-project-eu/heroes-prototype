@@ -1,0 +1,35 @@
+---
+- hosts: mule
+  become: yes
+  vars_files:
+    - vars/ansible.yml
+    - vars/organizations.yml
+
+  handlers:
+    - ansible.builtin.import_tasks: handlers/ssh.yml
+      tags: ssh
+
+  tasks:
+    - name: Install base packages
+      ansible.builtin.package:
+        state: present
+        name:
+          - vim
+      tags: base_packages
+ 
+    - name: Update the system
+      ansible.builtin.package:
+        state: latest
+        name: '*'
+      tags: 
+        - never
+        - update
+
+  # Included tasks
+    - name: Include tasks
+      ansible.builtin.import_tasks: tasks/segregation.yml
+      tags: segregation
+
+  roles:
+    #    - {role: geerlingguy.docker, tags: docker}
+    #    - {role: doit_systems.firewall, tags: firewall}

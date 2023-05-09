@@ -1,0 +1,32 @@
+---
+organization:
+  - name: Organization_A
+    uuid: orgA_UUID
+    users:
+      - name: "Alice Appleworth"
+        uuid: "1234alice"
+        mail: "applewortha@orga.com"
+      - name: "Bob Bananarama"
+        uuid: "5678bob"
+        mail: "bananaramab@orga.com"
+  - name: Organization_B
+    uuid: orgB_UUID
+    users:
+      - name: "Alice Parker"
+        uuid: "3636alice"
+        mail: "parkera@orgb.com"
+      - name: "John Doe"
+        uuid: "5621doe"
+        mail: "doej@orgb.com"
+      - name: "Tom Bosley"
+        uuid: "4198tom"
+        mail: "bosleyt@orgb.com"
+  - name: Organization_C
+    uuid: orgC_UUID
+    users:
+      - name: "Alice Parker2"
+        uuid: "3636alice2"
+        mail: "parkera@orgb.com"
+      - name: "John Doe2"
+        uuid: "5621doe2"
+        mail: "doej@orgb.com"

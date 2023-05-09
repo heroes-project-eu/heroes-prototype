@@ -1,0 +1,57 @@
+################################################################################
+# Copyright (c) 2017-2021 UCit SAS
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of UCit SAS ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with UCit.
+################################################################################
+
+# This script allows Master and Compute to join an active directory domain
+
+- hosts: localhost
+  vars:
+    HEROES_DEPLOYMENT_DIR: "/opt/heroes/platform/sbin"
+    FASTAPI_VERSION: "0.3"
+
+  tasks:
+
+    - name: Install python3 as prerequisites to install Fastapi
+      yum:
+        name:
+          - gcc
+          - libpq-devel
+          - python38
+          - python38-pip
+          - python38-devel
+        state: present
+
+    - name: Create fastapi group
+      group:
+        name: fastapi
+        local: yes
+        state: present
+
+    - name: Create fastapi user
+      user:
+        name: fastapi
+        local: yes
+        group: fastapi
+        create_home: yes
+        home: /opt/fastapi
+        system: yes
+
+    - name: Untar HEROES-FastAPI archive
+      unarchive:
+        src: "{{ HEROES_DEPLOYMENT_DIR }}/src/heroes-fastapi-{{ FASTAPI_VERSION }}.tar.gz"
+        dest: "/opt/fastapi"
+        owner: fastapi
+        group: fastapi
+        extra_opts: [--strip-components=1]
+
+    - name: Install specified python3 requirements
+      pip:
+        requirements: "/opt/fastapi/requirements.txt"
+        executable: pip3.8

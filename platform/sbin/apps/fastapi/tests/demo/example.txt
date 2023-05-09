@@ -1,0 +1,8 @@
+
+====== CONTENT OF EXAMPLE.TXT ======
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque odio justo, vestibulum ut dolor vitae, vestibulum dignissim arcu. Duis nulla erat, sollicitudin nec neque sit amet, accumsan rutrum erat. Suspendisse bibendum diam non ipsum tristique, vitae efficitur ex dapibus. Nulla mattis, enim vel suscipit euismod, enim tortor egestas ligula, et elementum nisi dolor in mi. Nullam dapibus vehicula ligula eget sagittis. Nam eu ante non lacus euismod pretium sit amet at arcu. Ut non tincidunt purus. Aenean a lectus sed tortor sodales posuere.
+
+Nunc pharetra diam ut urna facilisis volutpat. Vestibulum diam nulla, rhoncus eget mauris vel, condimentum finibus nulla. Cras varius tellus lectus, a semper elit vestibulum ac. Integer dignissim ultrices eros, sit amet dapibus magna iaculis vel. Curabitur ex nibh, feugiat at tristique ac, sodales in urna. Nulla non vehicula nulla. Ut a est eget velit ullamcorper faucibus sit amet sit amet nulla. Fusce vestibulum felis gravida, sagittis justo sed, tempor nisl. Curabitur fermentum ante et ipsum pharetra ultrices. Nam id ante bibendum, vehicula ipsum at, venenatis arcu. Donec et dapibus neque. Mauris posuere vestibulum consequat. Ut ac tempor urna. Aenean mollis neque et tincidunt rhoncus. Maecenas rutrum a lacus in tempus. Nam malesuada odio nisi, vitae eleifend turpis tempor quis.
+
+====== CONTENT OF EXAMPLE.TXT ======

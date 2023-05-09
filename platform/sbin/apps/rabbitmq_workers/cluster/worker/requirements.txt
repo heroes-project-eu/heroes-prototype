@@ -1,0 +1,5 @@
+pika==1.2.0
+simplejson==3.2.0
+Jinja2==3.0.2
+GitPython==3.1.24
+aws-parallelcluster=2.10.4

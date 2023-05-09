@@ -1,0 +1,34 @@
+---
+- name: Check repository root directory
+  ansible.builtin.file:
+    path: "{{ repodir }}"
+    state: directory
+    owner: "{{ service_user.name }}"
+    group: "{{ service_group.name }}"
+    mode: '0700'
+
+- name: Verify SHA1 checksum and if correct copy package to remote repository
+  ansible.builtin.copy:
+    src: "{{ pkg.name }}-{{ pkg.version }}-{{ pkg.release }}.{{ pkg.arch }}.{{ pkg.ext }}"
+    dest: "{{ repodir }}"
+    owner: "{{ service_user.name }}"
+    group: "{{ service_group.name }}"
+    mode: '0700'
+    checksum: "{{ pkg.sha1sum }}"
+
+- name: Check repository directory
+  ansible.builtin.file:
+    path: "{{ repodir }}/{{ pkg.name }}-{{ pkg.version }}-{{ pkg.release }}.{{ pkg.arch }}"
+    state: directory
+    owner: "{{ service_user.name }}"
+    group: "{{ service_group.name }}"
+    mode: '0700'
+
+- name: Extract package into repository directory
+  ansible.builtin.unarchive:
+    src: "{{ repodir }}/{{ pkg.name }}-{{ pkg.version }}-{{ pkg.release }}.{{ pkg.arch }}.{{ pkg.ext }}"
+    dest: "{{ repodir }}/{{ pkg.name }}-{{ pkg.version }}-{{ pkg.release }}.{{ pkg.arch }}"
+    remote_src: yes
+    owner: "{{ service_user.name }}"
+    group: "{{ service_group.name }}"
+    mode: '0700'

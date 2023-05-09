@@ -1,0 +1,7 @@
+---
+service_user:
+  name: hsuser
+  id: 2000
+service_group:
+  name: hsgroup
+  id: 2000

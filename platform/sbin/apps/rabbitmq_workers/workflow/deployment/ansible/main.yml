@@ -1,0 +1,32 @@
+---
+- hosts: mockup
+  become: yes
+  vars_files:
+    - vars/ansible.yml
+    - vars/heroes.yml
+    - vars/package.yml
+    - vars/organizations.yml
+
+  tasks:
+    - name: Install base packages
+      ansible.builtin.package:
+        state: present
+        name:
+          - vim
+      tags:
+        - never
+        - base_packages
+ 
+    - name: Update the system
+      ansible.builtin.package:
+        state: latest
+        name: '*'
+      tags: 
+        - never
+        - update
+
+    - ansible.builtin.import_tasks: tasks/segregation_check.yml
+      tags: segregation_check
+
+    - ansible.builtin.import_tasks: tasks/deploy_check.yml
+      tags: deploy_check

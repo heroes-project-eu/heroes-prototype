@@ -1,0 +1,102 @@
+################################################################################
+# Copyright (c) 2017-2021 UCit SAS
+# All Rights Reserved
+#
+# This software is the confidential and proprietary information
+# of UCit SAS ("Confidential Information").
+# You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of
+# the license agreement you entered into with UCit.
+################################################################################
+
+# This script allows Master and Compute to join an active directory domain
+
+- hosts: localhost
+  vars:
+    keycloak_version: "15.0.2"
+    keycloak_url: "https://github.com/keycloak/keycloak/releases/download"
+    HEROES_TEMPLATES_DIR: "/opt/heroes/platform/sbin/templates"
+
+  tasks:
+    #- import_tasks: setenv.yaml
+    - name: Install java as prerequisites to install Keycloak
+      yum:
+        name: java
+        state: present
+
+    - name: Find Java version
+      shell: "readlink -f $(which java)"
+      register: JAVA_HOME
+
+    - name: Create keycloak group
+      group:
+        name: keycloak
+        local: yes
+        state: present
+
+    - name: Create keycloak user
+      user:
+        name: keycloak
+        local: yes
+        group: keycloak
+        create_home: yes
+        home: /opt/keycloak
+        system: yes
+
+    - name: Download Keycloak
+      get_url:
+        url: "{{keycloak_url}}/{{keycloak_version}}/keycloak-{{keycloak_version}}.tar.gz"
+        dest: "/tmp/keycloak.tar.gz"
+        mode: '0440'
+
+    - name: Find the keycloak archive file
+      stat:
+        path: "/tmp/keycloak.tar.gz"
+      register: keycloak_archive
+
+    - name: Untar keycloak archive to /opt/keycloak
+      unarchive:
+        src: "/tmp/keycloak.tar.gz"
+        dest: "/opt/keycloak"
+        owner: keycloak
+        group: keycloak
+        extra_opts: [--strip-components=1]
+      when: keycloak_archive.stat.exists
+
+    - name: Copy the launch in keycloak bin
+      template:
+        src: "{{ HEROES_TEMPLATES_DIR }}/launch.sh.j2"
+        dest: "/opt/keycloak/bin/launch.sh"
+        mode: +x
+
+    - name: Chmod o+rx the keycloak bin directory
+      ansible.builtin.file:
+        path: /opt/keycloak/bin
+        mode: o+rx
+
+    - name: Create /etc/keycloak dir with keycloak user as owner
+      ansible.builtin.file:
+        path: /etc/keycloak
+        state: directory
+        owner: keycloak
+        group: keycloak
+
+    - name: Copy the keycloak configuration
+      template:
+        src: "{{ HEROES_TEMPLATES_DIR }}/keycloak.conf.j2"
+        dest: "/etc/keycloak/keycloak.conf"
+        mode: "0600"
+        owner: "keycloak"
+        group: "keycloak"
+
+    - name: Change the Keycloak server url in standalone mode
+      replace:
+        regexp: '127\.0\.0\.1'
+        replace: '0.0.0.0'
+        path: "/opt/keycloak/standalone/configuration/standalone.xml"
+
+    - name: Add correct version of JAVA in keycloak standalone
+      lineinfile:
+        path: "/opt/keycloak/bin/standalone.sh"
+        line: 'JAVA_HOME="{{JAVA_HOME.stdout.split("/bin/java")[0]}}"'
+        insertbefore: BOF
